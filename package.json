@@ -4,7 +4,7 @@
   "description": "like flumelog-memory without the filesystem",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test/*.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +13,7 @@
     "pull-cursor": "^3.0.0"
   },
   "devDependencies": {
+    "flumedb": "^1.0.1",
     "test-flumelog": "^1.0.0"
   }
 }

@@ -47,6 +47,10 @@ module.exports = () => {
   return {
     // Take a sequence number as input, read it from the array, and callback.
     get: (seq, cb) => cb(null, log[seq]),
+    del: (seq, cb) => {
+      delete log[seq]
+      cb(null, since.value)
+    },
     stream: (opts) => createStream(opts),
     since: since,
     append: (items, cb) => {
