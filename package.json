@@ -1,0 +1,14 @@
+{
+  "name": "flumelog-array",
+  "version": "1.0.0",
+  "description": "like flumelog-memory without the filesystem",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "obv": "0.0.1"
+  }
+}
