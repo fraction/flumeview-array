@@ -30,7 +30,7 @@ const createHelpers = (log, since) => {
   }
 }
 
-module.exports = () => () => {
+module.exports = () => {
   // Just a simple array used to store each item in the log.
   const log = []
 

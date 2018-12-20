@@ -1,3 +1,3 @@
-require('test-flumelog')(require('./')(), () => {
+require('test-flumelog')(require('./'), () => {
   // done!
 })
