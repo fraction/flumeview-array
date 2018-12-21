@@ -1,6 +1,6 @@
-# flumelog-array
+# flumeview-flumelog-array
 
-> like flumelog-memory without the filesystem
+> git@github.com:fraction/flumeview-flumelog-array.git<Paste>
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@
 ## Install
 
 ```
-npm install flumelog-array
+npm install flumeview-flumelog-array
 ```
 
 ## Usage
@@ -21,14 +21,17 @@ npm install flumelog-array
 ```js
 const Log = require('flumelog-array')
 const Flume = require('flumedb')
+const View = require('flumeview-flumelog-array')
 
 var db = Flume(Log())
 
+db.use('bool', View(x => !!x))
+
 db.append({foo: 1}, function (err, seq) {
   if (err) throw err
-  db.get(seq, (err, val) => {
+  db.bool.get(seq, (err, val) => {
     if (err) throw err
-    console.log(val) // => { foo: 1 }
+    console.log(val) // => true
   })
 })
 ```
