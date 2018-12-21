@@ -7,10 +7,16 @@ const View = require('../')
 
 // Track deletes with a simple observable.
 // Very experimental, use at your own risk.
+// HACK: FLUMEVIEW-DELETE
 const deleteObv = Obv()
 const log = Log()
 
-const db = Flume(log).use('bool', View(x => !!x, deleteObv))
+
+const db = Flume(log)
+  .use('bool', View(
+    x => !!x,
+    deleteObv // HACK: FLUMEVIEW-DELETE
+  ))
 
 // patch flumedb to allow deletion
 if (typeof db.del !== 'function') {
@@ -23,6 +29,7 @@ if (typeof db.del !== 'function') {
     // TODO: iterate through flumeviews and delete
     // Below we have a janky view-specific deletion observable.
     // This should be universal.
+    // HACK: FLUMEVIEW-DELETE
     deleteObv.set(seq)
   }
 }
