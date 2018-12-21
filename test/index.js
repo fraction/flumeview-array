@@ -1,11 +1,12 @@
-const Log = require('../')
+const Log = require('flumelog-array')
 const Flume = require('flumedb')
 const test = require('tape')
-const Obv = require('obv')
-const pull = require('pull-stream')
+const View = require('../')
 
 const log = Log()
 const db = Flume(log)
+
+db.use('bool', View(x => !!x))
 
 // patch flumedb to allow deletion
 if (typeof db.del !== 'function') {
@@ -18,50 +19,6 @@ if (typeof db.del !== 'function') {
     // TODO: iterate through flumeviews and delete
   }
 }
-
-// flumeview-flumelog-offset :)
-db.use('bool', () => {
-  let flumelogArray = Flume(Log())
-  const since = Obv()
-  since.set(-1)
-
-  return {
-    createSink: (cb) => {
-      return pull.drain((item) => {
-        const truthy = !!item.value
-        flumelogArray.append(truthy, (err, seq) => {
-          if (err) return cb(err)
-          since.set(seq)
-        })
-      }, cb)
-    },
-    destroy: (cb) => {
-      since.set(-1)
-      flumelogArray = Flume(Log())
-      return cb(null)
-    },
-    methods: {
-      get: 'async'
-    },
-    since,
-    close: (cb) => cb(null),
-    ready: (cb) => cb(null),
-    // our actual method!
-    get: (seq, cb) => {
-      flumelogArray.get(seq, (err, item) => {
-        if (err) return cb(err)
-        cb(null, item)
-      })
-    },
-    del: (seq, cb) => {
-      console.log('delete me')
-      flumelogArray.del(seq, (err, seq) => {
-        if (err) return cb(err)
-        cb(null, seq)
-      })
-    }
-  }
-})
 
 test('append + delete + get + view.get', function (t) {
   // append three values

@@ -1,19 +1,20 @@
 {
-  "name": "flumelog-array",
+  "name": "flumeview-flumelog-array",
   "version": "1.0.1",
-  "description": "like flumelog-memory without the filesystem",
+  "description": "simple flumeview built on flumelog-array",
   "main": "index.js",
   "scripts": {
-    "test": "node test/*.js"
+    "test": "tape test/*.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "flumelog-array": "^1.0.1",
     "obv": "0.0.1",
-    "pull-cursor-array": "^2.0.0"
+    "pull-stream": "^3.6.9"
   },
   "devDependencies": {
     "flumedb": "^1.0.1",
-    "test-flumelog": "^1.0.0"
+    "tape": "^4.9.1"
   }
 }
