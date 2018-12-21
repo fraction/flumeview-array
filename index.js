@@ -3,14 +3,12 @@ const Log = require('flumelog-array')
 const Obv = require('obv')
 
 module.exports = (map, deleteObv) => () => {
-
   // HACK: FLUMEVIEW-DELETE
   if (deleteObv != null) {
     // This observable is used whenever we need something deleted.
     // It's a hack, but it's the only option without `flumedb.views` access.
     console.warn('WARNING: Using experimental delete observable')
   }
-
 
   // This array tracks deletes.
   // Each item in this array is a deleted `seq`.
@@ -65,8 +63,6 @@ module.exports = (map, deleteObv) => () => {
     ready: (cb) => cb(null),
     since
   }
-
-
 
   // HACK: FLUMEVIEW-DELETE
   deleteObv((seq) => {

@@ -11,7 +11,6 @@ const View = require('../')
 const deleteObv = Obv()
 const log = Log()
 
-
 const db = Flume(log)
   .use('bool', View(
     x => !!x,
