@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "obv": "0.0.1",
-    "pull-cursor": "^3.0.0"
+    "pull-cursor-array": "^2.0.0"
   },
   "devDependencies": {
     "flumedb": "^1.0.1",

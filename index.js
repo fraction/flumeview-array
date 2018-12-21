@@ -1,75 +1,53 @@
-// It's important for `flumelog.stream(opts)` to handle all sorts of different
-// options, which have been abstracted into the pull-cursor module.
-const pullCursor = require('pull-cursor')
-
-// The obv module creates an observable, which is like a cross between
+const pullCursorArray = require('pull-cursor-array')
 const Obv = require('obv')
 
-// There are two helper functions that depend on `db` and `since`.
-// Instead of hardcoding them below, we create a sort of factory.
-const createHelpers = (log, since) => {
-  // This is specific to pull-cursor, but the gist is that we need to describe
-  // a way for pull-cursor to read elements out of our log. This is copy and
-  // pasted from the readme, so we aren't doing anything novel here.
-  const getMeta = (offset, useCache, cb) => {
-    if (offset < 0 || offset >= log.length) {
-      // TODO: Add tests for this error in test-flumelog.
-      cb(new Error('out of bounds:' + offset))
-    } else {
-      cb(null, log[offset], offset - 1, offset + 1)
-    }
-  }
-
-  return {
-    // A basic pull-cursor invokation, copied from the readme.
-    // Pay no attention to the code behind the curtain!
-    createStream: pullCursor(since, getMeta),
-
-    // It would be trivial to do this manually, but this keeps our code DRY.
-    updateSince: () => since.set(log.length - 1)
-  }
-}
-
 module.exports = () => {
-  // Just a simple array used to store each item in the log.
+  // Create a simple array to hold items in the log.
+  // This array is ephemeral, it isn't persisted anywhere.
   const log = []
 
-  // Observable to track number of items in log.
-  const since = Obv()
+  // Track the state of the log by using an observable.
+  // The value of the observable is the *offset* of the last item added.
+  // If the log had an item this would be `0` (because `log[0]`).
+  // Since the log is empty, it can be initialized to `-1`.
+  const since = Obv().set(-1)
 
-  // Create helpers that depend on `log` and `since`.
-  const { createStream, updateSince } = createHelpers(log, since)
-
-  // Set `since.value` to `-1`, which means we have 0 items.
-  // This should always be `db.length - 1` except when appending many items.
-  updateSince()
+  // The pull-cursor module exports a function that accepts stream options.
+  // For example: `createStream({ live: true, gt: 42 })`.
+  // The pull-cursor-array module is a tiny abstraction specific to arrays.
+  const createStream = pullCursorArray(log, since)
 
   return {
-    // Take a sequence number as input, read it from the array, and callback.
-    get: (seq, cb) => cb(null, log[seq]),
-    del: (seq, cb) => {
-      delete log[seq]
-      cb(null, since.value)
-    },
-    stream: (opts) => createStream(opts),
-    since: since,
     append: (items, cb) => {
-      // We can accept either a single item or multiple, which run in a batch.
       if (Array.isArray(items) === false) {
-        // To minimize complexity, we turn single items into an array.
+        // The `items` argument may be a single value or an array.
+        // To minimize complexity, this ensures `items` is always an array.
         items = [ items ]
       }
 
+      // Since `items` is an array, `Array.forEach` can be used to append.
       items.forEach((item) => log.push(item))
 
-      // When we append multiple items to the log this is only called once.
-      // This allows us to append in batches for better performance.
-      updateSince()
+      // It's important that `since` is only updated once per `append()`.
+      // This allows us to make changes in batches for better performance.
+      since.set(log.length - 1)
 
-      // Return the sequence number so that the caller knows the latest offset.
+      // Return the new value of `since` when the append operation completes.
       cb(null, since.value)
     },
-    // We aren't persisting this log in a directory. :)
-    dir: null
+    del: (seq, cb) => {
+      // This is experimental and unsupported by flumedb.
+      // If you're learning flumedb, you should ignore this. :)
+      delete log[seq]
+      cb(null, since.value)
+    },
+    dir: null,
+    get: (seq, cb) => {
+      // Take a sequence number as input, read it from the array, and callback.
+      // Note that this returns `undefined` when `seq` isn't a valid index.
+      cb(null, log[seq])
+    },
+    since: since,
+    stream: (opts) => createStream(opts)
   }
 }
