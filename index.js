@@ -10,6 +10,8 @@ module.exports = (map, deleteObv) => () => {
   const since = Obv()
   since.set(-1)
 
+  const deleted = []
+
   const api = {
     createSink: (cb) => {
       return pull.drain((item) => {
@@ -32,12 +34,17 @@ module.exports = (map, deleteObv) => () => {
     close: (cb) => cb(null),
     ready: (cb) => cb(null),
     get: (seq, cb) => {
+      if (deleteObv && deleted.includes(seq) === false) {
+        return cb(null, undefined)
+      }
+
       flumelogArray.get(seq, (err, item) => {
         if (err) return cb(err)
         cb(null, item)
       })
     },
     del: (seq, cb) => {
+      deleted.push(seq)
       flumelogArray.del(seq, (err, seq) => {
         if (err) return cb(err)
         cb(null, seq)

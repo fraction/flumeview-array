@@ -40,7 +40,7 @@ test('append + delete + get + view.get', function (t) {
 
         db.bool.get(seq, (err, item) => {
           t.error(err, 'view.get success')
-          // TODO t.equal(item, undefined, 'deleted from view')
+          t.equal(item, undefined, 'deleted from view')
           t.end()
         })
       })
