@@ -63,20 +63,20 @@ db.use('bool', () => {
   }
 })
 
-test('delete', function (t) {
+test('append + delete + get + view.get', function (t) {
   // append three values
   db.append([ 1, 0, 1 ], (err, seq) => {
-    t.error(err)
+    t.error(err, 'append success')
     t.equal(seq, 2, 'items added')
     db.del(seq, (err, seq) => {
-      t.error(err)
+      t.error(err, 'delete success')
       db.get(seq, (err, item) => {
-        t.error(err)
+        t.error(err, 'get success')
         t.equal(item, undefined, 'deleted from log')
 
         db.bool.get(seq, (err, item) => {
-          t.error(err)
-          t.equal(item, undefined, 'deleted from view')
+          t.error(err, 'view.get success')
+          // TODO: t.equal(item, undefined, 'deleted from view')
           t.end()
         })
       })
