@@ -1,6 +1,6 @@
 # flumeview-flumelog-array
 
-> git@github.com:fraction/flumeview-flumelog-array.git<Paste>
+> simple flumeview built on flumelog-array
 
 ## Table of Contents
 
