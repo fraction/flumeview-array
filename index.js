@@ -39,7 +39,7 @@ module.exports = () => {
       // This is experimental and unsupported by flumedb.
       // If you're learning flumedb, you should ignore this. :)
       delete log[seq]
-      cb(null, since.value)
+      cb(null, seq)
     },
     dir: null,
     get: (seq, cb) => {

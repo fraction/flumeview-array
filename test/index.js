@@ -15,11 +15,11 @@ if (typeof db.del !== 'function') {
     }
 
     log.since.once(() => log.del(seq, cb))
+    // TODO: iterate through flumeviews and delete
   }
 }
 
-
-// flumeview-flumelog-offset ;)
+// flumeview-flumelog-offset :)
 db.use('bool', () => {
   let flumelogArray = Flume(Log())
   const since = Obv()
@@ -28,7 +28,7 @@ db.use('bool', () => {
   return {
     createSink: (cb) => {
       return pull.drain((item) => {
-        const truthy = !!item.value;
+        const truthy = !!item.value
         flumelogArray.append(truthy, (err, seq) => {
           if (err) return cb(err)
           since.set(seq)
@@ -52,29 +52,34 @@ db.use('bool', () => {
         if (err) return cb(err)
         cb(null, item)
       })
+    },
+    del: (seq, cb) => {
+      console.log('delete me')
+      flumelogArray.del(seq, (err, seq) => {
+        if (err) return cb(err)
+        cb(null, seq)
+      })
     }
   }
 })
 
-
-  /*
-// pretty broken rn, please ignore
 test('delete', function (t) {
+  // append three values
   db.append([ 1, 0, 1 ], (err, seq) => {
     t.error(err)
+    t.equal(seq, 2, 'items added')
     db.del(seq, (err, seq) => {
       t.error(err)
       db.get(seq, (err, item) => {
         t.error(err)
-        t.ok(typeof item === undefined)
+        t.equal(item, undefined, 'deleted from log')
 
-        db.bool.get(2, (err, item) => {
+        db.bool.get(seq, (err, item) => {
           t.error(err)
-          t.ok(typeof item === undefined)
+          t.equal(item, undefined, 'deleted from view')
           t.end()
         })
       })
     })
   })
 })
-*/
