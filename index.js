@@ -2,12 +2,15 @@ const Log = require('flumelog-array')
 const pull = require('pull-stream')
 const Obv = require('obv')
 
-module.exports = (map) => () => {
+module.exports = (map, deleteObv) => () => {
+  if (deleteObv != null) {
+    console.log('WARNING: Using experimental delete observable')
+  }
   let flumelogArray = Log()
   const since = Obv()
   since.set(-1)
 
-  return {
+  const api = {
     createSink: (cb) => {
       return pull.drain((item) => {
         flumelogArray.append(map(item), (err, seq) => {
@@ -22,7 +25,8 @@ module.exports = (map) => () => {
       return cb(null)
     },
     methods: {
-      get: 'async'
+      get: 'async',
+      del: 'async'
     },
     since,
     close: (cb) => cb(null),
@@ -40,4 +44,12 @@ module.exports = (map) => () => {
       })
     }
   }
+
+  deleteObv((seq) => {
+    api.del(seq, (err) => {
+      if (err) throw err
+    })
+  })
+
+  return api
 }

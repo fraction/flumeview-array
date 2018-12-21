@@ -1,12 +1,16 @@
-const Log = require('flumelog-array')
-const Flume = require('flumedb')
 const test = require('tape')
+const Flume = require('flumedb')
+const Log = require('flumelog-array')
+const Obv = require('obv')
+
 const View = require('../')
 
+// Track deletes with a simple observable.
+// Very experimental, use at your own risk.
+const deleteObv = Obv()
 const log = Log()
-const db = Flume(log)
 
-db.use('bool', View(x => !!x))
+const db = Flume(log).use('bool', View(x => !!x, deleteObv))
 
 // patch flumedb to allow deletion
 if (typeof db.del !== 'function') {
@@ -17,6 +21,9 @@ if (typeof db.del !== 'function') {
 
     log.since.once(() => log.del(seq, cb))
     // TODO: iterate through flumeviews and delete
+    // Below we have a janky view-specific deletion observable.
+    // This should be universal.
+    deleteObv.set(seq)
   }
 }
 
@@ -33,7 +40,7 @@ test('append + delete + get + view.get', function (t) {
 
         db.bool.get(seq, (err, item) => {
           t.error(err, 'view.get success')
-          // TODO: t.equal(item, undefined, 'deleted from view')
+          // TODO t.equal(item, undefined, 'deleted from view')
           t.end()
         })
       })
