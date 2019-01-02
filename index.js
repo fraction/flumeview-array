@@ -17,13 +17,7 @@ module.exports = (map) => () => {
         })
       }, cb)
     },
-    del: (seq, cb) => {
-      // Delete the item from the flumeview.
-      flumelogArray.del(seq, (err, seq) => {
-        if (err) return cb(err)
-        cb(null, seq)
-      })
-    },
+    del: (seq, cb) => flumelogArray.del(seq, cb),
     destroy: (cb) => {
       // Re-initialize `flumelogArray` and reset `since`.
       flumelogArray = Log()
