@@ -1,11 +1,9 @@
 const test = require('tape')
 const Flume = require('flumedb')
 const Log = require('flumelog-array')
-
 const View = require('../')
 
-const log = Log()
-const db = Flume(log).use('bool', View(x => !!x))
+const db = Flume(Log()).use('bool', View(x => !!x))
 
 test('append + delete + get + view.get', function (t) {
   // Append three values.
@@ -13,7 +11,7 @@ test('append + delete + get + view.get', function (t) {
     t.error(err, 'append success')
     t.equal(seq, 2, 'items added')
     // Delete one.
-    db.del(seq, (err, seq) => {
+    db.del(seq, (err) => {
       t.error(err, 'delete success')
       // Ensure the value was deleted from the log.
       db.get(seq, (err, item) => {
