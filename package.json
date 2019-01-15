@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "flumelog-array": "^1.0.1",
+    "flumelog-array": "^1.1.0",
     "obv": "0.0.1",
     "pull-stream": "^3.6.9"
   },

@@ -29,7 +29,7 @@ module.exports = (map) => () => {
         })
       }, cb)
     },
-    del: (seq, cb) => flumelogArray.del(seq, cb),
+    del: (seqs, cb) => flumelogArray.del(seqs, cb),
     destroy: (cb) => {
       // Re-initialize `flumelogArray` and reset `since`.
       flumelogArray = Log()
