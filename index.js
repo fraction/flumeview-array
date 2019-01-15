@@ -5,13 +5,25 @@ const Obv = require('obv')
 module.exports = (map) => () => {
   // This view is backed up by a simple in-memory flumelog.
   let flumelogArray = Log()
+  let abort
+
   const since = Obv().set(-1)
 
   const api = {
     close: (cb) => cb(null),
     createSink: (cb) => {
+      abort = cb
       return pull.drain((item) => {
-        flumelogArray.append(map(item), (err, seq) => {
+        let value
+
+        // If value was deleted upstream, add a blank message.
+        if (item.value === undefined) {
+          value = undefined
+        } else {
+          value = map(item.value)
+        }
+
+        flumelogArray.append(value, (err, seq) => {
           if (err) return cb(err)
           since.set(seq)
         })
@@ -22,6 +34,8 @@ module.exports = (map) => () => {
       // Re-initialize `flumelogArray` and reset `since`.
       flumelogArray = Log()
       since.set(-1)
+
+      abort(null)
       cb(null)
     },
     get: (seq, cb) => {
@@ -32,7 +46,8 @@ module.exports = (map) => () => {
     },
     methods: {
       get: 'async',
-      del: 'async'
+      del: 'async',
+      destroy: 'async' // XXX: shouldn't this be exported by default?
     },
     ready: (cb) => cb(null),
     since

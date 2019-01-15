@@ -21,7 +21,19 @@ test('append + delete + get + view.get', function (t) {
         db.bool.get(seq, (err, item) => {
           t.error(err, 'view.get success')
           t.equal(item, undefined, 'deleted from view')
-          t.end()
+          db.rebuild((err) => {
+            t.error(err, 'rebuild success')
+            db.get(seq, (err, item) => {
+              t.error(err, 'get success')
+              t.equal(item, undefined, 'still deleted from log')
+              // Ensure the value was deleted from the view.
+              db.bool.get(seq, (err, item) => {
+                t.error(err, 'view.get success')
+                t.equal(item, undefined, 'still deleted from view')
+                t.end()
+              })
+            })
+          })
         })
       })
     })
