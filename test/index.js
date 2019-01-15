@@ -1,6 +1,6 @@
 const test = require('tape')
 const Flume = require('flumedb')
-const Log = require('flumelog-array')
+const Log = require('flumelog-memory')
 const View = require('../')
 
 const db = Flume(Log()).use('bool', View(x => !!x))

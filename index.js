@@ -1,5 +1,5 @@
 const pull = require('pull-stream')
-const Log = require('flumelog-array')
+const Log = require('flumelog-memory')
 const Obv = require('obv')
 
 module.exports = (map) => () => {
@@ -14,14 +14,7 @@ module.exports = (map) => () => {
     createSink: (cb) => {
       abort = cb
       return pull.drain((item) => {
-        let value
-
-        // If value was deleted upstream, add a blank message.
-        if (item.value === undefined) {
-          value = undefined
-        } else {
-          value = map(item.value)
-        }
+        const value = map(item.value)
 
         flumelogArray.append(value, (err, seq) => {
           if (err) return cb(err)
@@ -29,7 +22,6 @@ module.exports = (map) => () => {
         })
       }, cb)
     },
-    del: (seqs, cb) => flumelogArray.del(seqs, cb),
     destroy: (cb) => {
       // Re-initialize `flumelogArray` and reset `since`.
       flumelogArray = Log()
@@ -46,7 +38,6 @@ module.exports = (map) => () => {
     },
     methods: {
       get: 'async',
-      del: 'async',
       destroy: 'async' // XXX: shouldn't this be exported by default?
     },
     ready: (cb) => cb(null),
