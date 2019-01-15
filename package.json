@@ -14,7 +14,7 @@
     "pull-stream": "^3.6.9"
   },
   "devDependencies": {
-    "flumedb": "github:flumedb/flumedb#del",
+    "flumedb": "github:flumedb/flumedb",
     "tape": "^4.9.2"
   }
 }
