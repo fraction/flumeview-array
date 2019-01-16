@@ -34,9 +34,9 @@ module.exports = (map) => () => {
           value = map(item.value)
         }
 
-        log.append(value, (err, seq) => {
+        log.append(value, (err) => {
           if (err) return cb(err)
-          since.set(seq)
+          since.set(item.seq)
         })
       }, cb)
     },
