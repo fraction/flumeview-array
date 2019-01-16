@@ -1,18 +1,29 @@
 const pull = require('pull-stream')
 const Log = require('flumelog-array')
 const Obv = require('obv')
+const debug = require('debug')('flumeview-flumelog-array')
 
 module.exports = (map) => () => {
   // This view is backed up by a simple in-memory flumelog.
-  let flumelogArray = Log()
-  let abort
+  let log = Log()
 
+  // Here we record the sequence number of the latest item in the view.
+  // When the view is empty, the sequence number is set to `-1`.
+  // Our first item will have a sequence number of `0`.
   const since = Obv().set(-1)
+
+  // When this view is destroyed (e.g. `flumedb.rebuild()`) we need a way to
+  // abort the pull-stream sink created with `flumeview.createSink()`.
+  // XXX: Can multiple sinks be open at the same time?
+  let abortSink
 
   const api = {
     close: (cb) => cb(null),
     createSink: (cb) => {
-      abort = cb
+      debug('createSink')
+
+      abortSink = cb
+
       return pull.drain((item) => {
         let value
 
@@ -23,31 +34,32 @@ module.exports = (map) => () => {
           value = map(item.value)
         }
 
-        flumelogArray.append(value, (err, seq) => {
+        log.append(value, (err, seq) => {
           if (err) return cb(err)
           since.set(seq)
         })
       }, cb)
     },
-    del: (seqs, cb) => flumelogArray.del(seqs, cb),
+    del: (seqs, cb) => log.del(seqs, cb),
     destroy: (cb) => {
+      debug('destroy')
+
       // Re-initialize `flumelogArray` and reset `since`.
-      flumelogArray = Log()
+      log = Log()
       since.set(-1)
 
-      abort(null)
+      abortSink(null)
       cb(null)
     },
     get: (seq, cb) => {
-      flumelogArray.get(seq, (err, item) => {
+      log.get(seq, (err, item) => {
         if (err) return cb(err)
         cb(null, item)
       })
     },
     methods: {
       get: 'async',
-      del: 'async',
-      destroy: 'async' // XXX: shouldn't this be exported by default?
+      del: 'async'
     },
     ready: (cb) => cb(null),
     since

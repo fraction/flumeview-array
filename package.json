@@ -9,12 +9,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "debug": "^4.1.1",
     "flumelog-array": "^1.1.0",
     "obv": "0.0.1",
     "pull-stream": "^3.6.9"
   },
   "devDependencies": {
-    "flumedb": "github:flumedb/flumedb#del",
+    "flumedb": "github:flumedb/flumedb#cb",
     "tape": "^4.9.2"
   }
 }

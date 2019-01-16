@@ -5,7 +5,7 @@ const View = require('../')
 
 const db = Flume(Log()).use('bool', View(x => !!x))
 
-test('append + delete + get + view.get', function (t) {
+test('append + delete + get + view.get', { timeout: 5000 }, function (t) {
   // Append three values.
   db.append([ 1, 0, 1 ], (err, seq) => {
     t.error(err, 'append success')
