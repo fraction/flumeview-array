@@ -1,7 +1,7 @@
 const pull = require('pull-stream')
 const Log = require('flumelog-array')
 const Obv = require('obv')
-const debug = require('debug')('flumeview-flumelog-array')
+const debug = require('debug')('flumeview-array')
 
 module.exports = (map) => () => {
   // This view is backed up by a simple in-memory flumelog.

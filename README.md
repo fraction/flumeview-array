@@ -1,4 +1,4 @@
-# flumeview-flumelog-array
+# flumeview-array
 
 > simple flumeview built on flumelog-array
 
@@ -13,7 +13,7 @@
 ## Install
 
 ```
-npm install flumeview-flumelog-array
+npm install flumeview-array
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ npm install flumeview-flumelog-array
 ```js
 const Log = require('flumelog-array')
 const Flume = require('flumedb')
-const View = require('flumeview-flumelog-array')
+const View = require('flumeview-array')
 
 var db = Flume(Log())
 
