@@ -16,6 +16,6 @@
   },
   "devDependencies": {
     "flumedb": "github:flumedb/flumedb#cb",
-    "tape": "^4.9.2"
+    "tape": "^4.10.1"
   }
 }
