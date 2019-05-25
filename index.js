@@ -14,7 +14,6 @@ module.exports = (map) => () => {
 
   // When this view is destroyed (e.g. `flumedb.rebuild()`) we need a way to
   // abort the pull-stream sink created with `flumeview.createSink()`.
-  // XXX: Can multiple sinks be open at the same time?
   let abortSink
 
   const api = {
@@ -25,22 +24,34 @@ module.exports = (map) => () => {
       abortSink = cb
 
       return pull.drain((item) => {
-        let value
+        if (item.seq > since) {
+          let value
 
-        // If value was deleted upstream, add a blank message.
-        if (item.value === undefined) {
-          value = undefined
+          // If value was deleted upstream, add a blank message.
+          if (item.value === undefined) {
+            value = undefined
+          } else {
+            value = map(item.value)
+          }
+
+          log.append(value, (err) => {
+            if (err) return cb(err)
+            since.set(item.seq)
+          })
         } else {
-          value = map(item.value)
+          // rebuild!
         }
-
-        log.append(value, (err) => {
-          if (err) return cb(err)
-          since.set(item.seq)
-        })
       }, cb)
     },
-    del: (seqs, cb) => log.del(seqs, cb),
+    del: log.del,
+    rebuild: (items, cb) => {
+      console.log('hmm')
+      items.forEach(item => {
+        console.log('rebuilding item:', item)
+        log.put(item.seq, map(item.value))
+        log.get(item.seq, cb)
+      })
+    },
     destroy: (cb) => {
       debug('destroy')
 
@@ -51,12 +62,7 @@ module.exports = (map) => () => {
       abortSink(null)
       cb(null)
     },
-    get: (seq, cb) => {
-      log.get(seq, (err, item) => {
-        if (err) return cb(err)
-        cb(null, item)
-      })
-    },
+    get: log.get,
     methods: {
       get: 'async',
       del: 'async'

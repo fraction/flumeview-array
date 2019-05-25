@@ -7,7 +7,7 @@ const db = Flume(Log()).use('bool', View(x => !!x))
 
 test('append + delete + get + view.get', { timeout: 5000 }, function (t) {
   // Append three values.
-  db.append([ 1, 0, 1 ], (err, seq) => {
+  db.append([ 'hello there', false, 'foooooo' ], (err, seq) => {
     t.error(err, 'append success')
     t.equal(seq, 2, 'items added')
     // Delete one.
@@ -37,7 +37,15 @@ test('append + delete + get + view.get', { timeout: 5000 }, function (t) {
                   db.bool.get(seq, (err, item) => {
                     t.error(err, 'view.get success')
                     t.equal(item, undefined, 'still deleted from view')
-                    t.end()
+                    db.rebuild({ seq, value: 'what what' }, (err) => {
+                      t.error(err, 'rebuild success')
+                      console.log('was the seq', seq)
+                      db.bool.get(seq, (err, item) => {
+                        t.error(err, 'get success')
+                        t.equal(item, true, 'rebuild successful')
+                        t.end()
+                      })
+                    })
                   })
                 })
               })

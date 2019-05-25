@@ -10,12 +10,12 @@
   "license": "ISC",
   "dependencies": {
     "debug": "^4.1.1",
-    "flumelog-array": "^1.1.0",
+    "flumelog-array": "^1.2.0",
     "obv": "0.0.1",
     "pull-stream": "^3.6.9"
   },
   "devDependencies": {
-    "flumedb": "github:flumedb/flumedb#cb",
+    "flumedb": "github:flumedb/flumedb#view-rebuild",
     "tape": "^4.10.1"
   }
 }
